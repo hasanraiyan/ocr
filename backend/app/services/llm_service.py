@@ -18,7 +18,7 @@ class LLMService:
         # Configure standard Gemini Model via official LangChain Google provider
         llm = ChatGoogleGenerativeAI(
             google_api_key=api_key,
-            model="gemini-1.5-flash",  # High-speed multimodal LLM optimized for structured returns
+            model="gemini-3.5-flash",  # High-speed multimodal LLM optimized for structured returns
             temperature=0.0,            # Zero temperature ensures maximum extraction determinism
             max_retries=3
         )
