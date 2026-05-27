@@ -92,8 +92,32 @@ class LLMService:
             else:
                 result_dict = dict(response_model)
 
-        # Safeguard: Attach raw text if missing in the parsed output
+        # 8. Safeguard: Normalize confidence dictionary keys
         if isinstance(result_dict, dict):
+            # Normalize confidence dict keys so both flat keys and dot-notation keys are supported
+            if "confidence" in result_dict and isinstance(result_dict["confidence"], dict):
+                conf = result_dict["confidence"]
+                normalized_conf = {}
+                
+                # Map name
+                if "name" in conf and conf["name"] is not None:
+                    normalized_conf["name"] = conf["name"]
+                elif "holder.name" in conf and conf["holder.name"] is not None:
+                    normalized_conf["name"] = conf["holder.name"]
+                else:
+                    normalized_conf["name"] = None
+                    
+                # Map degree
+                if "degree" in conf and conf["degree"] is not None:
+                    normalized_conf["degree"] = conf["degree"]
+                elif "credential.degree" in conf and conf["credential.degree"] is not None:
+                    normalized_conf["degree"] = conf["credential.degree"]
+                else:
+                    normalized_conf["degree"] = None
+                    
+                result_dict["confidence"] = normalized_conf
+
+            # Safeguard: Attach raw text if missing in the parsed output
             if "rawText" not in result_dict or not result_dict["rawText"]:
                 result_dict["rawText"] = text
 

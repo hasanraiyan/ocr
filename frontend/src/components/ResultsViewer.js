@@ -57,8 +57,11 @@ export default function ResultsViewer({
     return { color: 'text-rose-400 bg-rose-950/50 border-rose-900', barColor: 'bg-rose-500', label: 'Review' };
   };
 
-  const nameConf = getConfidenceLevel(confidence.name);
-  const degreeConf = getConfidenceLevel(confidence.degree);
+  const nameScore = (confidence.name !== undefined && confidence.name !== null) ? confidence.name : confidence['holder.name'];
+  const degreeScore = (confidence.degree !== undefined && confidence.degree !== null) ? confidence.degree : confidence['credential.degree'];
+
+  const nameConf = getConfidenceLevel(nameScore);
+  const degreeConf = getConfidenceLevel(degreeScore);
 
   return (
     <div className="flex flex-col gap-6">
@@ -92,11 +95,11 @@ export default function ResultsViewer({
             <div className="flex justify-between items-center text-xs">
               <span className="text-zinc-400 font-medium">Name Confidence Score</span>
               <Badge className={`px-2 py-0.5 text-[10px] border font-bold ${nameConf.color}`}>
-                {confidence.name ? `${confidence.name}%` : 'N/A'} - {nameConf.label}
+                {nameScore !== undefined && nameScore !== null ? `${nameScore}%` : 'N/A'} - {nameConf.label}
               </Badge>
             </div>
             <Progress 
-              value={confidence.name || 0} 
+              value={nameScore || 0} 
               className="h-1.5 bg-zinc-850" 
               indicatorClassName={nameConf.barColor}
             />
@@ -109,11 +112,11 @@ export default function ResultsViewer({
             <div className="flex justify-between items-center text-xs">
               <span className="text-zinc-400 font-medium">Degree Confidence Score</span>
               <Badge className={`px-2 py-0.5 text-[10px] border font-bold ${degreeConf.color}`}>
-                {confidence.degree ? `${confidence.degree}%` : 'N/A'} - {degreeConf.label}
+                {degreeScore !== undefined && degreeScore !== null ? `${degreeScore}%` : 'N/A'} - {degreeConf.label}
               </Badge>
             </div>
             <Progress 
-              value={confidence.degree || 0} 
+              value={degreeScore || 0} 
               className="h-1.5 bg-zinc-850" 
               indicatorClassName={degreeConf.barColor}
             />
