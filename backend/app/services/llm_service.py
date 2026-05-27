@@ -1,14 +1,14 @@
 import base64
 from typing import List
 from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_core.output_parsers import JsonOutputParser
 from langchain_google_genai import ChatGoogleGenerativeAI
 from app.schemas.document import ExtractionSchema
 
 class LLMService:
     """
-    Orchestrates LangChain-native multimodal entity extraction using Google Gemini models.
-    Ingests BOTH raw OCR text and high-res page images to achieve maximum extraction accuracy.
+    Orchestrates LangChain-native multimodal entity extraction using langchain-google-genai.
+    Combines .with_structured_output() with base64 data URIs to perfectly satisfy
+    both input-side driver checks (startswith) and output-side Pydantic validations.
     """
 
     @classmethod
@@ -19,8 +19,8 @@ class LLMService:
         api_key: str
     ) -> dict:
         """
-        Asynchronously invokes Gemini with both the extracted OCR text AND 
-        the original page images, forcing strict compliance to the ExtractionSchema.
+        Invokes the LangChain Google GenAI model with both the OCR text and 
+        base64 data URIs, enforcing structured extraction using native model parsing.
         """
         if not api_key or "your_gemini" in api_key:
             raise ValueError(
@@ -28,19 +28,19 @@ class LLMService:
                 "Please add a valid 'GEMINI_API_KEY' inside your backend/.env file."
             )
 
-        # 1. Initialize Gemini Multimodal LLM
+        # 1. Initialize LangChain ChatGoogleGenerativeAI model
         llm = ChatGoogleGenerativeAI(
             google_api_key=api_key,
-            model="gemini-3.5-flash",  # Multimodal flash model
-            temperature=0.0,            # High determinism
+            model="gemini-3.5-flash",
+            temperature=0.0,
             max_retries=3
         )
 
-        # 2. Initialize JSON Output Parser
-        parser = JsonOutputParser(pydantic_object=ExtractionSchema)
-        format_instructions = parser.get_format_instructions()
+        # 2. Compile structured extraction model natively in LangChain
+        # This completely bypasses the buggy string-generation output code path!
+        structured_llm = llm.with_structured_output(ExtractionSchema)
 
-        # 3. Construct System Message with instructions
+        # 3. System message containing instructions
         system_instruction = (
             "You are an expert document processing AI. Your goal is to analyze the provided document "
             "and extract clean, structured JSON.\n\n"
@@ -56,23 +56,21 @@ class LLMService:
             "INSTRUCTIONS:\n"
             "1. Correct obvious OCR reading errors based on the visual image.\n"
             "2. Standardize dates to YYYY-MM-DD if possible.\n"
-            "3. If a field is missing, set it to null. Do not fabricate any information.\n"
-            "4. Estimate your confidence (integer 0-100) per field based on visual and layout clarity.\n\n"
-            
-            f"You must respond ONLY with a valid JSON object matching the format instructions below:\n{format_instructions}"
+            "3. If a field is missing, set its value to null. Do not fabricate or guess any data.\n"
+            "4. Estimate your confidence (integer 0-100) per field based on visual and layout clarity."
         )
 
-        # 4. Construct Human Multimodal Message
+        # 4. Construct Human Content list (passing Text + base64 data URIs)
         human_content = [
             {"type": "text", "text": f"Document OCR Raw Text:\n---\n{text}\n---"}
         ]
 
-        # Inject base64 images into the multimodal payload
-        for idx, b64_img in enumerate(base64_images):
-            # easyocr processes pages sequentially, so we map them in order
+        # Inject base64 data URIs. 
+        # This satisfies the input-side startswith() checks inside langchain-google-genai perfectly!
+        for b64_img in base64_images:
             human_content.append({
                 "type": "image_url",
-                "image_url": {"url": f"data:image/png;base64,{b64_img}"}
+                "image_url": f"data:image/png;base64,{b64_img}"
             })
 
         # 5. Assemble standard LangChain messages
@@ -81,9 +79,18 @@ class LLMService:
             HumanMessage(content=human_content)
         ]
 
-        # 6. Async invoke Gemini & parse standard output
-        response = await llm.ainvoke(messages)
-        result_dict = parser.parse(response.content)
+        # 6. Async invoke structured LangChain model and parse Pydantic output
+        response_model = await structured_llm.ainvoke(messages)
+
+        # 7. Convert Pydantic object safely back to dictionary format
+        result_dict = {}
+        if response_model:
+            if hasattr(response_model, "model_dump"):
+                result_dict = response_model.model_dump()
+            elif hasattr(response_model, "dict"):
+                result_dict = response_model.dict()
+            else:
+                result_dict = dict(response_model)
 
         # Safeguard: Attach raw text if missing in the parsed output
         if isinstance(result_dict, dict):
