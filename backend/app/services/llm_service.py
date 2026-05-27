@@ -72,7 +72,7 @@ class LLMService:
             # easyocr processes pages sequentially, so we map them in order
             human_content.append({
                 "type": "image_url",
-                "image_url": f"data:image/png;base64,{b64_img}"
+                "image_url": {"url": f"data:image/png;base64,{b64_img}"}
             })
 
         # 5. Assemble standard LangChain messages
