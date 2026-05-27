@@ -165,7 +165,7 @@ async def run_ocr_node(state: DocumentState) -> DocumentState:
     return state
 
 async def extract_with_llm_node(state: DocumentState) -> DocumentState:
-    """Node: Runs LCEL ChatGoogleGenerativeAI structured parser on raw OCR text."""
+    """Node: Runs LCEL ChatGoogleGenerativeAI structured parser on raw OCR text and page images."""
     if state.get("error"):
         return state
 
@@ -173,10 +173,21 @@ async def extract_with_llm_node(state: DocumentState) -> DocumentState:
     await persist_db_state(doc_id, "AI_EXTRACTION")
 
     try:
-        # Structured Gemini extraction
+        import base64
+        # Load and base64-encode all preprocessed page images
+        base64_images = []
+        for doc in state["documents"]:
+            processed_path = doc.metadata.get("processed_image_path")
+            if processed_path and os.path.exists(processed_path):
+                with open(processed_path, "rb") as image_file:
+                    b64_str = base64.b64encode(image_file.read()).decode("utf-8")
+                    base64_images.append(b64_str)
+
+        # Structured Gemini multimodal extraction (sends BOTH text and images!)
         extracted_data = await LLMService.extract_structured_data(
-            state["raw_text"], 
-            settings.GEMINI_API_KEY
+            text=state["raw_text"], 
+            base64_images=base64_images,
+            api_key=settings.GEMINI_API_KEY
         )
         state["extracted_data"] = extracted_data
         state["status"] = "AI_EXTRACTION"
