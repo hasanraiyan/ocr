@@ -411,11 +411,11 @@ export default function Dashboard() {
                   </div>
                 </TabsContent>
                 <TabsContent value="results" className="flex-1 overflow-hidden m-0">
-                  <ScrollArea className="h-full">
+                  <div className="h-full overflow-y-auto overflow-x-hidden scrollbar-none">
                     <div className="p-4 pb-8">
                       <ResultsViewer extractedData={activeDoc.extracted_data||{}} onHoverField={setActiveHoverField} />
                     </div>
-                  </ScrollArea>
+                  </div>
                 </TabsContent>
               </Tabs>
             ) : (
@@ -429,11 +429,11 @@ export default function Dashboard() {
                     activeFieldText={activeHoverField}
                   />
                 </div>
-                <ScrollArea className="flex-1 h-full">
+                <div className="flex-1 h-full overflow-y-auto overflow-x-hidden scrollbar-none">
                   <div className="py-1 pr-1">
                     <ResultsViewer extractedData={activeDoc.extracted_data||{}} onHoverField={setActiveHoverField} />
                   </div>
-                </ScrollArea>
+                </div>
               </div>
             )
           )}

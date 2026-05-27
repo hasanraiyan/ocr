@@ -73,14 +73,16 @@ export default function ResultsViewer({ extractedData = {}, onHoverField }) {
   };
 
   const FieldRow = ({ label, value, fieldId }) => (
-    <div className="flex items-center justify-between gap-3 text-sm group">
-      <span className="text-muted-foreground text-xs shrink-0">{label}</span>
+    <div className="flex flex-col gap-0.5 group sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+      <span className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wide shrink-0">
+        {label}
+      </span>
       <div className="flex items-center gap-2 min-w-0">
         <span
-          className="text-foreground font-medium truncate text-right"
+          className="text-foreground font-medium text-xs break-words min-w-0 flex-1 sm:truncate sm:text-right"
           title={value || ''}
         >
-          {value || 'Not Found'}
+          {value || <span className="text-muted-foreground/60 italic font-normal">Not found</span>}
         </span>
         <CopyBtn fieldId={fieldId} value={value} />
       </div>
