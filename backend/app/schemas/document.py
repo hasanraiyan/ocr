@@ -20,15 +20,16 @@ class CredentialSchema(BaseModel):
 class IssuerSchema(BaseModel):
     name: Optional[str] = Field(default=None, description="Name of the issuing organization, university, or signing authority")
 
+class ConfidenceSchema(BaseModel):
+    name: Optional[float] = Field(default=None, description="Confidence score (0 to 100) assessing extraction accuracy for the candidate/holder name")
+    degree: Optional[float] = Field(default=None, description="Confidence score (0 to 100) assessing extraction accuracy for the credential/degree name")
+
 class ExtractionSchema(BaseModel):
     """Target output schema that Gemini LLM is strictly guided to output."""
     holder: HolderSchema = Field(default_factory=HolderSchema)
     credential: CredentialSchema = Field(default_factory=CredentialSchema)
     issuer: IssuerSchema = Field(default_factory=IssuerSchema)
-    confidence: Dict[str, Optional[float]] = Field(
-        default_factory=dict,
-        description="Confidence scores (0 to 100) assessing extraction accuracy per parsed field."
-    )
+    confidence: ConfidenceSchema = Field(default_factory=ConfidenceSchema)
     rawText: Optional[str] = Field(default=None, description="Full raw unstructured text block ingested from OCR.")
 
 # ==========================================
