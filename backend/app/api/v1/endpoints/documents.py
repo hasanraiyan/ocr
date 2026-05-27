@@ -96,7 +96,7 @@ async def get_document_result(id: str, db: AsyncSession = Depends(get_db)):
 
     return db_doc
 
-@router.get("/", response_model=List[DocumentResponse])
+@router.get("/", response_model=list[DocumentResponse])
 async def list_documents(db: AsyncSession = Depends(get_db)):
     """
     Fetches the historical list of all processed items ordered by creation date.
