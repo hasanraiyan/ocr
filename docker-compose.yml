@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: docusense-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      # Mount named volume to persist EasyOCR model weights across restarts
+      - easyocr-cache:/root/.EasyOCR
+      # Mount named volume to persist uploads
+      - uploads-data:/app/uploads
+    env_file:
+      - ./backend/.env
+    restart: always
+
+volumes:
+  easyocr-cache:
+  uploads-data:

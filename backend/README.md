@@ -104,7 +104,7 @@ The server will boot up on `http://localhost:8000`. You can visit the interactiv
 ## 🔌 API Documentation
 
 ### 1. Process Document
-*   **Endpoint**: `POST /api/v1/documents/process`
+*   **Endpoint**: `POST /api/documents/process`
 *   **Payload**: Multipart form-data containing:
     *   `file`: The document (PDF, PNG, JPG, JPEG) under 10MB.
 *   **Response (Immediate)**:
@@ -118,7 +118,7 @@ The server will boot up on `http://localhost:8000`. You can visit the interactiv
     *Note: The processing is delegated to a background task, returning the job ID instantly to ensure maximum response performance.*
 
 ### 2. Retrieve Status & Structured Result
-*   **Endpoint**: `GET /api/v1/documents/{id}/result`
+*   **Endpoint**: `GET /api/documents/{id}/result`
 *   **Response (Ongoing/Finished)**:
     ```json
     {
@@ -161,5 +161,5 @@ The server will boot up on `http://localhost:8000`. You can visit the interactiv
     ```
 
 ### 3. List Document History
-*   **Endpoint**: `GET /api/v1/documents/`
+*   **Endpoint**: `GET /api/documents/`
 *   **Response**: A chronological array of all historical document records.

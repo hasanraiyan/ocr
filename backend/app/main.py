@@ -61,10 +61,10 @@ app.mount(
 # 3. Router Integration
 # ==========================================
 
-# Group all documents endpoints under standard /api/v1 prefix
+# Group all documents endpoints under standard /api prefix
 app.include_router(
     documents_router, 
-    prefix="/api/v1/documents", 
+    prefix="/api/documents", 
     tags=["documents"]
 )
 
