@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -35,6 +37,9 @@
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "prettier": "^3.8.0",
+    "prettier-plugin-tailwindcss": "^0.5.8",
+    "eslint-config-prettier": "^9.0.0"
   }
 }
