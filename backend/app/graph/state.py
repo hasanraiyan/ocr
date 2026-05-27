@@ -11,6 +11,7 @@ class DocumentState(TypedDict):
     file_type: str                     # File extension (.pdf, .png, .jpg, .jpeg)
     status: str                        # Lifecycle stage tracking
     documents: List[Document]          # LangChain Document objects representing pages
+    raw_text: str                      # Cumulative OCR text string
     extracted_data: Optional[Dict[str, Any]] # Resulting AI structured Pydantic schema
     retry_count: int                   # OCR quality retry attempt counter
     error: Optional[str]               # Diagnostic details if processing fails
