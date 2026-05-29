@@ -30,7 +30,7 @@ class ExtractionSchema(BaseModel):
     credential: CredentialSchema = Field(default_factory=CredentialSchema)
     issuer: IssuerSchema = Field(default_factory=IssuerSchema)
     confidence: ConfidenceSchema = Field(default_factory=ConfidenceSchema)
-    rawText: Optional[str] = Field(default=None, description="Full raw unstructured text block ingested from OCR.")
+    rawText: Optional[str] = Field(default=None, description="All readable text extracted directly from the document images by the AI.")
 
 # ==========================================
 # 2. Pydantic Schemas for FastAPI API Boundaries

@@ -3,31 +3,13 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  User,
-  Award,
-  Building,
-  Download,
-  Copy,
-  Check,
-  FileText,
-  ChevronDown,
-} from 'lucide-react';
+import { User, Award, Building, Download, Copy, Check } from 'lucide-react';
 
-export default function ResultsViewer({ extractedData = {}, onHoverField }) {
+export default function ResultsViewer({ extractedData = {} }) {
   const [copiedField, setCopiedField] = useState(null);
-  const [showRaw, setShowRaw] = useState(false);
 
-  const {
-    holder = {},
-    credential = {},
-    issuer = {},
-    confidence = {},
-    rawText = '',
-  } = extractedData;
+  const { holder = {}, credential = {}, issuer = {}, confidence = {} } = extractedData;
 
   const handleCopy = (fieldId, val) => {
     if (!val) return;
@@ -59,7 +41,6 @@ export default function ResultsViewer({ extractedData = {}, onHoverField }) {
   const nameMeta = getConfidenceMeta(confidence.name);
   const degreeMeta = getConfidenceMeta(confidence.degree);
 
-  /* ── Copy button: always visible on touch, hover-only on desktop ── */
   const CopyBtn = ({ fieldId, value }) => {
     if (!value) return null;
     return (
@@ -77,16 +58,10 @@ export default function ResultsViewer({ extractedData = {}, onHoverField }) {
     );
   };
 
-  /* ── Field row: stacked on mobile, side-by-side on sm+
-        Hover passes its specific value to DocPreviewOverlay highlight ── */
   const FieldRow = ({ label, value, fieldId }) => (
-    <div
-      className="flex flex-col gap-0.5 group rounded-md px-1.5 -mx-1.5 py-1 transition-colors
-                 hover:bg-accent/50 cursor-default
-                 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
-      onMouseEnter={() => value && onHoverField?.(value)}
-      onMouseLeave={() => onHoverField?.(null)}
-    >
+    <div className="flex flex-col gap-0.5 group rounded-md px-1.5 -mx-1.5 py-1 transition-colors
+                    hover:bg-accent/50 cursor-default
+                    sm:flex-row sm:items-center sm:justify-between sm:gap-3">
       <span className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wide shrink-0">
         {label}
       </span>
@@ -107,7 +82,7 @@ export default function ResultsViewer({ extractedData = {}, onHoverField }) {
   return (
     <div className="flex flex-col gap-5">
 
-      {/* ── Action header ── */}
+      {/* Action header */}
       <Card className="bg-card border-border">
         <CardContent className="p-4 flex items-center justify-between flex-wrap gap-3">
           <div className="min-w-0">
@@ -115,7 +90,7 @@ export default function ResultsViewer({ extractedData = {}, onHoverField }) {
               Extracted Insights
             </CardTitle>
             <CardDescription className="text-muted-foreground text-xs mt-0.5">
-              Gemini multimodal extraction &amp; layout analysis
+              Gemini multimodal visual extraction
             </CardDescription>
           </div>
           <Button
@@ -130,9 +105,8 @@ export default function ResultsViewer({ extractedData = {}, onHoverField }) {
         </CardContent>
       </Card>
 
-      {/* ── Confidence cards ── */}
+      {/* Confidence cards */}
       <div className="grid grid-cols-2 gap-3">
-
         {[
           { label: 'Name', score: confidence.name, meta: nameMeta },
           { label: 'Degree', score: confidence.degree, meta: degreeMeta },
@@ -166,13 +140,11 @@ export default function ResultsViewer({ extractedData = {}, onHoverField }) {
             </CardContent>
           </Card>
         ))}
-
       </div>
 
-      {/* ── Data cards ── */}
+      {/* Data cards */}
       <div className="flex flex-col gap-3">
 
-        {/* Holder */}
         <Card className="bg-card border-border hover:border-primary/30 transition-colors duration-200">
           <CardHeader className="py-3 px-4 border-b border-border flex flex-row items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
@@ -190,7 +162,6 @@ export default function ResultsViewer({ extractedData = {}, onHoverField }) {
           </CardContent>
         </Card>
 
-        {/* Credential */}
         <Card className="bg-card border-border hover:border-emerald-300/50 transition-colors duration-200">
           <CardHeader className="py-3 px-4 border-b border-border flex flex-row items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
@@ -209,7 +180,6 @@ export default function ResultsViewer({ extractedData = {}, onHoverField }) {
           </CardContent>
         </Card>
 
-        {/* Issuer */}
         <Card className="bg-card border-border hover:border-amber-300/50 transition-colors duration-200">
           <CardHeader className="py-3 px-4 border-b border-border flex flex-row items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0">
@@ -226,38 +196,6 @@ export default function ResultsViewer({ extractedData = {}, onHoverField }) {
         </Card>
 
       </div>
-
-      {/* ── Raw OCR text — collapsible ── */}
-      {rawText && (
-        <Card className="bg-card border-border overflow-hidden">
-          <button
-            onClick={() => setShowRaw((v) => !v)}
-            className="w-full px-4 py-3 flex items-center justify-between gap-3
-                       hover:bg-muted/50 transition-colors text-left"
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <FileText className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-              <span className="text-xs font-bold text-foreground">OCR Raw Text</span>
-              <span className="text-[10px] text-muted-foreground bg-muted border border-border
-                               px-1.5 py-0.5 rounded font-mono shrink-0">
-                {rawText.length} chars
-              </span>
-            </div>
-            <ChevronDown
-              className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-200
-                          ${showRaw ? 'rotate-180' : ''}`}
-            />
-          </button>
-          {showRaw && (
-            <div className="border-t border-border">
-              <ScrollArea className="h-36 text-[10px] font-mono leading-relaxed p-3 text-muted-foreground whitespace-pre-wrap select-text">
-                {rawText}
-              </ScrollArea>
-            </div>
-          )}
-        </Card>
-      )}
-
     </div>
   );
 }

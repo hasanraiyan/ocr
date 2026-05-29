@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Toaster, toast } from 'sonner';
 import {
-  UploadCloud, History, Sparkles, Cpu, FileText,
+  UploadCloud, History, Sparkles, FileText,
   AlertTriangle, Loader2, CheckCircle2, Plus,
   ChevronRight, RefreshCw, Database, ArrowUpRight,
-  Menu
+  Menu, Cpu
 } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,7 +29,6 @@ export default function Dashboard() {
   const [activeDoc, setActiveDoc] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [pollingStatus, setPollingStatus] = useState(null);
-  const [activeHoverField, setActiveHoverField] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const fileInputRef = useRef(null);
@@ -121,7 +120,7 @@ export default function Dashboard() {
     return <Badge className={`font-bold px-2.5 py-0.5 text-[10px] border ${cls}`}>{label[status] || status}</Badge>;
   };
 
-  const stepPriority = { PENDING:0,VALIDATING:1,CONVERTING:2,PREPROCESSING:3,RUNNING_OCR:4,AI_EXTRACTION:5,COMPLETED:6 };
+  const stepPriority = { PENDING:0, VALIDATING:1, CONVERTING:2, AI_EXTRACTION:3, COMPLETED:4 };
   const getStepStyle = (stepStatus, curStatus) => {
     const cur = stepPriority[curStatus] || 0, step = stepPriority[stepStatus];
     if (curStatus === "FAILED") return { c:"border-red-200 bg-red-50/50", d:"bg-red-500", t:"text-red-600" };
@@ -137,11 +136,9 @@ export default function Dashboard() {
   const getExt = (fn) => fn ? fn.slice(((fn.lastIndexOf(".")-1)>>>0)+2) : "";
 
   const STEPS = [
-    { step:"PENDING",       label:"1. Ingestion Upload Completed",              done: true },
-    { step:"CONVERTING",    label:"2. PDF Page Conversion / Rasterizing" },
-    { step:"PREPROCESSING", label:"3. OpenCV Grays & Skew Orientation Filters" },
-    { step:"RUNNING_OCR",   label:"4. Layout Bounding Box & EasyOCR Scanning" },
-    { step:"AI_EXTRACTION", label:"5. Structured JSON Mapping (Google Gemini)" },
+    { step:"PENDING",       label:"1. Document Upload Completed",               done: true },
+    { step:"CONVERTING",    label:"2. Preparing Document Images" },
+    { step:"AI_EXTRACTION", label:"3. AI Visual Extraction (Google Gemini)" },
   ];
 
   /* ── Sidebar body (reused in <aside> and Sheet) ── */
@@ -287,7 +284,7 @@ export default function Dashboard() {
                     <Sparkles className="w-5 h-5 text-primary animate-pulse" />Welcome to DocuSense
                   </h2>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Upload scanned identity cards, degrees, academic credentials, or international documents to extract structured entity records using OCR and Gemini.
+                    Upload identity cards, degrees, or academic credentials. Gemini reads the document visually and extracts structured data — no OCR middleware needed.
                   </p>
                 </div>
 
@@ -319,11 +316,10 @@ export default function Dashboard() {
                 </div>
 
                 {/* Feature cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {[
-                    { icon:<Cpu className="w-4 h-4"/>, color:"text-primary", title:"OpenCV Preprocessing", desc:"Cleans noise, filters grays, and corrects skews for 99% character legibility." },
-                    { icon:<FileText className="w-4 h-4"/>, color:"text-emerald-600", title:"Layout-Aware OCR", desc:"Detects raw word structures mapping precise coordinate bounding boxes." },
-                    { icon:<Sparkles className="w-4 h-4"/>, color:"text-indigo-600", title:"Gemini LLM Structurer", desc:"Runs strict JSON validation schemas to structure credential details." },
+                    { icon:<Cpu className="w-4 h-4"/>, color:"text-primary", title:"Direct Image Upload", desc:"Documents are sent directly to Gemini as images — no preprocessing pipeline." },
+                    { icon:<Sparkles className="w-4 h-4"/>, color:"text-indigo-600", title:"Gemini Multimodal AI", desc:"Gemini reads text, layout, and context natively from images and returns structured JSON." },
                   ].map(({icon,color,title,desc})=>(
                     <Card key={title} className="bg-card border-border">
                       <CardContent className="p-4 flex items-start gap-3">
@@ -405,15 +401,13 @@ export default function Dashboard() {
                     <DocPreviewOverlay
                       fileUrl={getStaticFileUrl(activeDoc.file_path)}
                       fileType={getExt(activeDoc.filename)}
-                      layoutData={activeDoc.layout_data||[]}
-                      activeFieldText={activeHoverField}
                     />
                   </div>
                 </TabsContent>
                 <TabsContent value="results" className="flex-1 overflow-hidden m-0">
                   <div className="h-full overflow-y-auto overflow-x-hidden scrollbar-none">
                     <div className="p-4 pb-8">
-                      <ResultsViewer extractedData={activeDoc.extracted_data||{}} onHoverField={setActiveHoverField} />
+                      <ResultsViewer extractedData={activeDoc.extracted_data||{}} />
                     </div>
                   </div>
                 </TabsContent>

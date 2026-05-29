@@ -64,10 +64,8 @@ async def process_document(
         "file_path": saved_file_path,
         "file_type": extension,
         "status": "PENDING",
-        "documents": [],
-        "raw_text": "",
+        "page_image_paths": [],
         "extracted_data": None,
-        "retry_count": 0,
         "error": None
     }
 
