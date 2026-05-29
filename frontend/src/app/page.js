@@ -131,6 +131,7 @@ export default function Dashboard() {
 
   const getStaticFileUrl = (fp) => {
     if (!fp) return "";
+    if (fp.startsWith("http://") || fp.startsWith("https://")) return fp;
     return `${API_BASE_URL.replace("/api","")}/uploads/${fp.replace(/^.*[\\\/]/,'')}`;
   };
   const getExt = (fn) => fn ? fn.slice(((fn.lastIndexOf(".")-1)>>>0)+2) : "";

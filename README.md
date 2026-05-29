@@ -55,7 +55,13 @@ Fill in `backend/.env`:
 DATABASE_URL=postgresql+asyncpg://user:password@host:5432/postgres
 GEMINI_API_KEY=your_gemini_api_key_here
 UPLOAD_DIR=./uploads
+
+# Supabase Storage — required on Render (ephemeral disk) so document previews persist
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_SERVICE_KEY=your_service_role_key_here
 ```
+
+> **Supabase Storage setup:** In your Supabase project go to **Storage → New bucket**, name it `documents`, and enable **Public bucket**. Then copy the Project URL and `service_role` key from **Settings → API**.
 
 ### 3. Run
 ```bash

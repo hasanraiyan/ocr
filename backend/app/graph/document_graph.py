@@ -145,6 +145,13 @@ async def save_result_node(state: DocumentState) -> DocumentState:
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir, ignore_errors=True)
 
+    # When Supabase Storage is configured the original file is already uploaded;
+    # delete the local copy to avoid filling ephemeral disk on Render.
+    if settings.SUPABASE_URL and settings.SUPABASE_SERVICE_KEY:
+        local_file = state.get("file_path", "")
+        if local_file and os.path.exists(local_file):
+            os.remove(local_file)
+
     state["status"] = "COMPLETED"
     return state
 
