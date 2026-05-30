@@ -1,29 +1,22 @@
-# Use a lightweight official Python runtime as base image
 FROM python:3.12-slim
 
-# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Install system dependencies required by OpenCV and PyMuPDF
+# Only what PyMuPDF and the supabase client actually need
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements file and install dependencies
-COPY requirements.txt /app/requirements.txt
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application files
-COPY . /app
+COPY . .
 
-# Expose port 8000
-EXPOSE 8000
+# Create upload dir so StaticFiles mount doesn't crash on cold start
+RUN mkdir -p ./uploads
 
-# Start the FastAPI application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Render injects $PORT at runtime; fall back to 8000 for local docker-compose
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
