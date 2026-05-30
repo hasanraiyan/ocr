@@ -92,7 +92,7 @@ async def prepare_images_node(state: DocumentState) -> DocumentState:
 
 
 async def extract_with_llm_node(state: DocumentState) -> DocumentState:
-    """Sends document images directly to Gemini for structured extraction."""
+    """Sends document images to OpenAI for structured extraction."""
     if state.get("error"):
         return state
 
@@ -110,7 +110,9 @@ async def extract_with_llm_node(state: DocumentState) -> DocumentState:
 
         extracted_data = await LLMService.extract_structured_data(
             base64_images=base64_images,
-            api_key=settings.GEMINI_API_KEY
+            api_key=settings.OPENAI_API_KEY,
+            model=settings.OPENAI_MODEL,
+            base_url=settings.OPENAI_BASE_URL
         )
         state["extracted_data"] = extracted_data
         state["status"] = "AI_EXTRACTION"

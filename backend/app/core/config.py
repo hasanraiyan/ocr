@@ -8,7 +8,9 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     
     DATABASE_URL: str = "sqlite+aiosqlite:///./docusense.db"
-    GEMINI_API_KEY: str = ""
+    OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-4o"
+    OPENAI_BASE_URL: str = ""
     UPLOAD_DIR: str = "./uploads"
 
     # Supabase Storage (optional — falls back to local ./uploads if not set)

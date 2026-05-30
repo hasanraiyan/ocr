@@ -1,7 +1,7 @@
 import base64
 from typing import List
 from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from app.schemas.document import ExtractionSchema
 
 class LLMService:
@@ -10,20 +10,26 @@ class LLMService:
     async def extract_structured_data(
         cls,
         base64_images: List[str],
-        api_key: str
+        api_key: str,
+        model: str = "openai-large",
+        base_url: str = ""
     ) -> dict:
-        if not api_key or "your_gemini" in api_key:
+        if not api_key or "your_openai" in api_key:
             raise ValueError(
-                "Gemini API key is not configured. "
-                "Please add a valid 'GEMINI_API_KEY' inside your backend/.env file."
+                "OpenAI API key is not configured. "
+                "Please add a valid 'OPENAI_API_KEY' inside your backend/.env file."
             )
 
-        llm = ChatGoogleGenerativeAI(
-            google_api_key=api_key,
-            model="gemini-2.0-flash",
-            temperature=0.0,
-            max_retries=3
-        )
+        llm_kwargs = {
+            "api_key": api_key,
+            "model": model,
+            "temperature": 0.0,
+            "max_retries": 3,
+        }
+        if base_url:
+            llm_kwargs["base_url"] = base_url
+
+        llm = ChatOpenAI(**llm_kwargs)
 
         structured_llm = llm.with_structured_output(ExtractionSchema)
 
@@ -42,7 +48,7 @@ class LLMService:
         for b64_img in base64_images:
             human_content.append({
                 "type": "image_url",
-                "image_url": f"data:image/png;base64,{b64_img}"
+                "image_url": {"url": f"data:image/png;base64,{b64_img}"}
             })
 
         messages = [

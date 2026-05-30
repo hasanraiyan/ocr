@@ -25,7 +25,7 @@ class ConfidenceSchema(BaseModel):
     degree: Optional[float] = Field(default=None, description="Confidence score (0 to 100) assessing extraction accuracy for the credential/degree name")
 
 class ExtractionSchema(BaseModel):
-    """Target output schema that Gemini LLM is strictly guided to output."""
+    """Target output schema that OpenAI LLM is strictly guided to output."""
     holder: HolderSchema = Field(default_factory=HolderSchema)
     credential: CredentialSchema = Field(default_factory=CredentialSchema)
     issuer: IssuerSchema = Field(default_factory=IssuerSchema)

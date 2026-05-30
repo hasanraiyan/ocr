@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.APP_NAME,
-    description="Intelligent OCR and structured data extraction engine using LangGraph and Gemini.",
+    description="Intelligent OCR and structured data extraction engine using LangGraph and OpenAI.",
     version="1.0.0",
     lifespan=lifespan
 )
